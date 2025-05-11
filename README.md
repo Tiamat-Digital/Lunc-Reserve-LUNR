@@ -1,102 +1,221 @@
-# **LUNC Reserve (LUNR) White Paper**
+# **LUNC Reserve (LUNR) White Paper**
 
 ### Redeemable Reserve‑Notes for the Terra Classic Ecosystem
 
+
+
 ---
+
+
 
 ## 1 · Abstract
 
-**LUNC Reserve (LUNR)** introduces a programmable reserve‑note layer to Terra Classic. Every LUNR token represents a proportional claim on a transparent pool of **LUNC** locked in a smart contract, with the on‑chain redemption rate defined as
+**LUNC Reserve (LUNR)** is a reserve‑backed note system for Terra Classic. Every LUNR token represents a proportional claim on a smart‑contract vault of **LUNC**, with the redemption formula
 
-```
-LUNR value = LUNC reserves ÷ LUNR supply
-```
 
-New deposits mint LUNR at a **15 % protocol premium**: 85 % of the fair‑value notes are issued to the depositor, while 100 % of the LUNC is added to reserves. Because supply grows more slowly than reserves, each mint **accrues intrinsic value** to all existing holders. The system launches with **1 billion LUNC** from the Community Pool and a genesis airdrop to every LUNC holder and staker.
+
+LUNR value = LUNC reserves ÷ LUNR supply
+
+
+
+
+
+New deposits mint LUNR at a **15 % protocol premium**—85 % of the fair‑value notes go to the depositor, while 100 % of the LUNC is added to reserves. Because supply grows more slowly than reserves, each mint *accrues* intrinsic value to all existing holders. The protocol launches with **1 billion LUNC** seeded from the Community Pool and a genesis airdrop to every holder and staker.
+
+
+
+---
+
+
+
+## 2 · Historical Context — From Gold Certificates to Smart‑Contract Notes
+
+
+
+### 2.1 Gold Receipts & Bank‑Notes
+
+Merchants once entrusted gold to goldsmiths and received paper receipts. Those receipts circulated as money because anyone could redeem them for gold—so long as trust in the vault held. U.S. **Gold Certificates** formalised this, promising “payable to the bearer on demand.”
+
+
+
+### 2.2 Vaulting on Chain
+
+LUNC Reserve mirrors that model:
+
+
+
+| Legacy Banking         | LUNC Reserve            |
+
+|---------------------------------|------------------------------------|
+
+| Gold in a guarded vault     | LUNC locked in a CosmWasm vault  |
+
+| Paper bank‑note         | LUNR CW20 token          |
+
+| Teller redemption        | Trustless `redeem()`        |
+
+
+
+Every LUNR burn releases its pro‑rata LUNC, so solvency is provable and immediate.
+
+
 
 ---
 
-## 2 · Historical Context — From Gold Certificates to Smart‑Contract Notes
 
-### 2.1 Early Banking · Gold Deposits & Redeemable Notes
-
-Before electronic money, merchants deposited **gold** with trusted goldsmiths and received paper **receipts**. Those receipts soon **circulated as money**, because anyone could redeem the note for gold on demand. Confidence in the vault was paramount: if trust evaporated, holders rushed to redeem, triggering the classic *bank‑run*.
-
-In the United States this evolved into official **Gold Certificates**—dollar bills literally stamped “payable to the bearer on demand.” Until 1933, Americans could exchange a certificate for gold coins at the Treasury window. The lesson is timeless: *deposit something valuable, receive a tradable claim ticket*.
-
-### 2.2 LUNC Reserve · Bringing the Vault On‑Chain
-
-**LUNC Reserve** applies that centuries‑old concept to blockchain:
-
-| Legacy Banking                 | LUNC Reserve                    |
-| ------------------------------ | ------------------------------- |
-| Gold stored in a guarded vault | LUNC locked in a smart contract |
-| Paper bank‑note                | LUNR token (CW20 standard)      |
-| Manual teller redemption       | Trustless `redeem()` function   |
-
-Every LUNR is backed by real LUNC reserves. Redeeming burns LUNR and releases the exact pro‑rata amount of LUNC—no human approval required. The contract enforces the reserve ratio transparently, eliminating custodial risk while preserving the redeemability that made historical bank‑notes so powerful.
-
----
 
 ## 3 · System Design
 
-### 3.1 Reserves & Supply
 
-* **Initial reserves:** 1 000 000 000 LUNC (Community Pool)
-* **Genesis supply:** 100 000 000 LUNR  — *genesis rate = 10 LUNC per LUNR*
-* **Live metrics:** the contract exposes real‑time reserves, supply, and redemption rate.
 
-### 3.2 Minting with a 15 % Premium
+### 3.1 Reserves & Supply
 
-1. User deposits **d LUNC**.
-2. Fair issuance = `d ÷ p` LUNR at the current rate *p*.
-3. Contract transfers **85 %** of those notes to the depositor and burns the remaining **15 %**.
-4. The full **d LUNC** is added to reserves.
+* **Initial reserves:** 1 000 000 000 LUNC  
 
-Because supply expands more slowly than reserves, the redemption rate rises immediately after every deposit.
+* **Genesis supply:** 100 000 000 LUNR  
 
-### 3.3 Redemption & Burn Mechanics
+* **Live metrics:** vault exposes `query_rate`, reserves, and supply.
 
-* **Redeem:** burn *x LUNR* → withdraw *x × p* LUNC (lossless).
-* **Voluntary burn:** destroy LUNR without redemption to raise the redemption rate for all remaining holders.
-* **External burns:** protocol extensions (games, DAOs, LP vaults) may burn LUNR, further concentrating value.
 
-> **Why LUNR burns matter.** Terra Classic’s standard 0.5 % LUNC burn simply lowers supply—it does **not** increase the purchasing power of each LUNC. Every LUNR burn leaves LUNC reserves intact **while reducing LUNR supply**, automatically lifting the redemption rate. Burns therefore reduce circulating notes *and* boost the intrinsic value of every remaining LUNR.
 
----
+### 3.2 Minting with 15 % Premium
 
-## 4 · Genesis Airdrop
+1. User deposits *d LUNC*.  
 
-* **Snapshot block:** 7 days after governance approval.
-* **Eligibility:** all liquid **and** staked LUNC (CEX custodians encouraged to pass rewards through).
-* **Distribution:** 100 000 000 LUNR airdropped pro rata.
+2. Fair issuance = `d ÷ p` LUNR.  
 
----
+3. Depositor receives 85 %; 15 % is burned.  
 
-## 5 · Economic Example
+4. Full *d LUNC* enters reserves.  
 
-| Metric                            | Before Deposit | After 1 M LUNC Deposit |
-| --------------------------------- | -------------- | ---------------------- |
-| **Reserves (LUNC)**               | 10 000 000     | 11 000 000             |
-| **Supply (LUNR)**                 | 1 000 000      | 1 085 000              |
-| **Redemption Rate (LUNC / LUNR)** | 10.00          | **10.14** (+1.4 %)     |
+5. Redemption rate rises because *R* increases faster than *S*.
 
-A voluntary burn of 50 000 LUNR (with no withdrawal) would push the rate to 10.32 LUNC, directly rewarding holders through scarcity.
+
+
+### 3.3 Redemption & Burns
+
+* **Redeem:** burn *x LUNR* → withdraw *x × p* LUNC.  
+
+* **Voluntary burn:** destroy LUNR without withdrawal → raises *p*.  
+
+* **Protocol burns:** games/DAOs can sink LUNR to add scarcity.
+
+
+
+> **Why LUNR burns matter** – Each burn leaves reserves unchanged but lowers supply, so the per‑token backing (*p*) escalates, unlike Terra Classic’s 0.5 % native LUNC burn that only reduces supply.
+
+
 
 ---
 
-## 6 · Governance & Upgradability
 
-* **Premium range:** 5 – 25 %, adjustable by on‑chain vote.
-* **Contract upgrades:** governance proposal + 3‑of‑5 validator multisig timelock.
-* **Reserve movements:** only via `redeem()`; no admin withdrawal route exists.
+
+## 4 · Market Dynamics & Price Band
+
+Let **p = R / S** (book value). Minting costs **p / 0.85 ≈ 1.176 p** LUNC per note.
+
+
+
+| Market Situation | Arbitrage Action | Result |
+
+|------------------|------------------|--------|
+
+| **Price < p**  | Buy LUNR cheap → `redeem()` | Supply & reserves fall 1 : 1 → *p* unchanged; buying pressure lifts price toward *p*. |
+
+| **Price > p / 0.85** | Deposit LUNC → mint at 85 % → sell | Reserves ↑, supply ↑, new sell‑pressure drags price toward *p / 0.85*. |
+
+
+
+Self‑correcting corridor:
+
+
+
+* **Floor:** *p* (100 % collateral)  
+
+* **Ceiling:** *p / 0.85* (~117.6 % of collateral)
+
+
+
+Since redemptions move *R* and *S* proportionally, per‑note collateral never weakens—arbitrage tightens price without draining reserves.
+
+
 
 ---
 
-## 7 · Conclusion
 
-LUNC Reserve converts idle Community Pool assets into a community‑owned, value‑accruing reserve system. By merging centuries‑old banking logic with modern smart‑contract transparency, **LUNR** provides Terra Classic with a deflationary, composable primitive that bridges the gold‑backed money of the past and the decentralised finance of the future.
 
-*Documentation & GitHub links will follow the successful passage of the governance proposal.*
+## 5 · Comparison with 2022 LUNA / USTC Model
 
-— *Last updated · May 2025*
+
+
+### 5.1 Collateralisation vs Algorithmic Peg
+
+
+
+| Feature        | 2022 LUNA ↔ USTC | 2025 LUNC Reserve |
+
+|-----------------------|------------------|-------------------|
+
+| **Backing ratio**   | 0 % reserve (USTC relied on LUNA mint/burn) | 100 % reserve: every LUNR minted only after LUNC is locked |
+
+| **Peg model**     | Hard \$1 peg | Floating claim: *p* plus 15 % mint ceiling |
+
+| **Stabilisation**   | Printed LUNA to buy USTC (hyper‑inflation) | No endogenous print; supply tied to deposits |
+
+| **Failure mode**   | Reflexive death spiral (LUNA hyper‑inflation) | None—redeem & burn keeps per‑token backing constant |
+
+| **Premium buffer**  | None | 15 % mint premium adds reserve headroom |
+
+
+
+### 5.2 Why LUNR Avoids the Death Spiral
+
+* **Cannot over‑issue** – vault mints only after LUNC arrives.  
+
+* **No hard \$ peg** – price floats; no need to defend parity.  
+
+* **Constant coverage** – redemptions shrink *R* and *S* equally, so *p* is steady.  
+
+* **Mint‑premium ceiling** – prevents instant dilution above ~17.6 % over book value.
+
+
+
+---
+
+
+
+## 6 · Genesis Airdrop
+
+* **Snapshot block:** 7 days after governance approval.  
+
+* **Eligibility:** all liquid + staked LUNC.  
+
+* **Distribution:** 100 000 000 LUNR airdropped pro rata.
+
+
+
+---
+
+
+
+## 7 · Governance & Upgradability
+
+* Premium tunable 5–25 % via governance.  
+
+* Upgrades require proposal + multisig timelock.  
+
+* Reserves movable only through `redeem()`.
+
+
+
+---
+
+
+
+## 8 · Conclusion
+
+LUNC Reserve converts Community Pool assets into a fully‑collateralised note economy. With its intrinsic price band and 100 % reserve model, LUNR delivers the redeemability early banking relied on—without the fragility that doomed algorithmic pegs.
+
+
+
+*Last updated: May 2025*
